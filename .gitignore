@@ -1,0 +1,19 @@
+# Local inputs and generated outputs
+data/
+output/
+.build/
+*.tar
+*.tar.gz
+*.log
+!example-data/docking.log
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+
+# Editors and OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,44 @@
+{
+  "name": "autodock-vina-tool",
+  "description": "AutoDock Vina command-line docking and vina_split for prepared PDBQT receptors and ligands. Python code environment packaged for PSC. Reads mounted inputs at /app/inputs and writes docking poses and logs to /work.",
+  "version": "1.0.0",
+  "category": "Computational Chemistry",
+  "license": "Apache-2.0",
+  "infra": [
+    {
+      "name": "worker",
+      "infra_type": "container",
+      "image": {
+        "acr": ""
+      },
+      "compute": {
+        "min_resources": {
+          "cpu": 1,
+          "ram": "2Gi",
+          "gpu": 0,
+          "storage": "0Gi"
+        },
+        "max_resources": {
+          "cpu": 4,
+          "ram": "16Gi",
+          "gpu": 0,
+          "storage": "50Gi"
+        },
+        "infiniband": false,
+        "recommended_sku": [
+          "Standard_D4s_v6"
+        ],
+        "pool_type": "static",
+        "pool_size": 1
+      }
+    }
+  ],
+  "code_environments": [
+    {
+      "language": "python",
+      "command": "/bin/sh -c 'cd /work && exec python3 -u \"$1\" > /work/logs.out 2>&1' autodock-vina-code \"/{{scriptName}}\"",
+      "description": "Python 3.11 code environment with AutoDock Vina and vina_split. Runs on Linux AMD64 CPUs; no GPU or MPI required.\n\nAvailable modules and commands:\n- subprocess: Run vina and vina_split\n- pathlib, shutil, glob: Manage inputs and output files\n- json, re: Parse and serialize docking results\n- vina, vina_split: AutoDock Vina command-line programs\n\nCan handle:\n- Rigid-receptor docking of prepared PDBQT ligands\n- Batch docking of prepared PDBQT ligands\n- Vina and Vinardo scoring; AD4 scoring when compatible maps are supplied\n- Splitting a multi-pose PDBQT file with vina_split\n\nIMPORTANT PATHS:\n- /app/inputs: Prepared PDBQT files and optional box configuration or affinity maps, mounted read-only\n- /work: Writable working directory and output directory captured by Discovery\n\nWhen invoking this Python code environment, set outputMounts to [\"/work\"]. The launcher runs the script in /work and records stdout and stderr in /work/logs.out. Use Path('/work') for all output files and absolute paths for inputs. The runner supplies scriptName. Execute Vina with subprocess.run and check=True; the launcher preserves the Python script's exit status.\n\nPython example:\n  import subprocess\n  subprocess.run([\"vina\", \"--receptor\", \"/app/inputs/receptor.pdbqt\",\n                  \"--ligand\", \"/app/inputs/ligand.pdbqt\",\n                  \"--config\", \"/app/inputs/box.txt\",\n                  \"--cpu\", \"1\", \"--seed\", \"42\",\n                  \"--out\", \"/work/docked.pdbqt\"], check=True, cwd=\"/work\")\n\nThe box configuration must define center_x, center_y, center_z, size_x, size_y, and size_z. Vina prints an affinity table in kcal/mol and writes pose scores as REMARK VINA RESULT lines in the output PDBQT. Scores are predictions, not measured binding affinities. Use --cpu no greater than the allocated CPU count.\n\nThis image includes the Vina executables and Python for orchestration. It does not include Vina Python bindings, Meeko, ligand/receptor preparation, AutoGrid, or AmberTools; prepare PDBQT inputs before running.\n\nCommands: vina --help; vina_split --help; python3; sh.\n",
+      "infra_node": "worker"
+    }
+  ]
+}
