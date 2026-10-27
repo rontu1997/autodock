@@ -5,6 +5,15 @@ pinned commit of [forlilab/AutoDock-Vina](https://github.com/forlilab/AutoDock-V
 It runs on Linux containers. The Python bindings are not included.
 Python 3 is included for running scripts that call the Vina executables.
 
+## Get the repository
+
+This project is published at [github.com/rontu1997/autodock](https://github.com/rontu1997/autodock).
+
+```sh
+git clone https://github.com/rontu1997/autodock.git
+cd autodock
+```
+
 ## PSC manifest
 
 [autodock-vina-tool.json](autodock-vina-tool.json) describes a Python code
